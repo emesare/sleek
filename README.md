@@ -1,3 +1,8 @@
+# Preview
+
+![image](https://github.com/emesare/sleek/assets/35282038/bdbdcefc-78e1-4bda-9257-bcb7dacada58)
+
+
 # Usage
 
 Add `sleek` as build dependency to your `Cargo.toml`:
