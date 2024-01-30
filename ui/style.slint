@@ -1,0 +1,42 @@
+struct Color {
+    background: color,
+    foreground: color,
+    foreground-variant: color,
+    surface: color,
+    surface-variant: color,
+    on-surface: color,
+    on-surface-variant: color,
+    primary: color,
+    on-primary: color,
+    outline: color,
+    outline-variant: color,
+    on-outline: color,
+    on-outline-variant: color,
+    secondary-container: color,
+    on-secondary-container: color,
+}
+
+export global style {
+    out property <Color> color: {
+        background: #3C3D40,
+        foreground: #fff,
+        foreground-variant: #eee,
+        surface: #4A4458,
+        surface-variant: #49454F,
+        on-surface: #E6E1E5,
+        on-surface-variant: #CAC4D0,
+        primary: #D0BCFF,
+        on-primary: #371E73,
+        outline: #938F99,
+        outline-variant: #444746,
+        on-outline: #D0BCFF,
+        secondary-container: #4A4B50,
+        on-secondary-container: #E8DEF8,
+    };
+    out property <duration> standard-animation: 250ms;
+    out property <duration> short-animation: 150ms;
+    out property <length> primary-spacing: 6px;
+    out property <length> primary-padding: 8px;
+    out property <length> primary-rounding: 3px;
+    out property <length> secondary-rounding: 2px;
+}

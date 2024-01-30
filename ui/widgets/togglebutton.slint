@@ -1,0 +1,110 @@
+import { style } from "../style.slint";
+
+export component ToggleButton inherits Rectangle {
+    in property<string> text <=> txt.text;
+    in property<string> icon-cmds: "";
+    in-out property<bool> selected: false;
+    in-out property<bool> enabled <=> touch.enabled;
+
+    border-radius: style.primary-rounding;
+    height: txt.preferred-height * 2;
+    min-width: txt.preferred-width + 20px;
+    background: style.color.surface;
+
+    inner := Rectangle {
+        border-radius: parent.border-radius;
+        height: parent.height - 1px;
+        width: parent.width;
+        background: style.color.primary.darker(0.5);
+        opacity: 0.6;
+        animate height { duration: style.standard-animation; easing: ease-out; }
+        animate opacity { duration: style.short-animation; easing: ease-out; }
+
+        states [  
+            pressed when touch.pressed : {
+                height: parent.height * 0.9;
+            }
+            hovered when touch.has-hover && !selected : {
+                background: style.color.surface.darker(0.3);
+                in { animate width { duration: style.standard-animation; easing: ease-out; } }
+                out { animate width { duration: style.standard-animation; easing: ease-out; } }
+            }
+            unselected when !selected : {
+                width: 0px;
+                background: style.color.surface.darker(0.3);
+                in { animate width { duration: style.standard-animation; easing: ease-out; } }
+                out { animate width { duration: style.standard-animation; easing: ease-out; } }
+            }
+        ]
+    }
+
+    HorizontalLayout {
+        alignment: center;
+        spacing: style.primary-spacing * 60%;
+
+        icon-box := Rectangle {
+            y: (parent.height - self.height) / 2;
+            // TODO: This is some weird bs, cant have just a percent do to alignment.
+            width: parent.height * 0.7;
+            height: parent.height * 0.7;
+
+            icon := Path {
+                commands: root.icon-cmds;
+                fill: touch.pressed ? style.color.foreground : style.color.foreground-variant;
+                // Standard is a little annoying for this, use a short animation duration.
+                animate opacity { duration: style.short-animation; easing: ease-out; }
+                animate fill { duration: style.standard-animation; easing: ease-out; }
+    
+                states [
+                    selected when selected == true : {
+                        fill: style.color.primary.brighter(0.125);
+                    }
+                ]
+            }
+
+            states [
+                empty when icon-cmds == "" : {
+                    width: 0px;
+                    height: 0px;
+                }
+            ]
+        }
+    
+        txt := Text {
+            vertical-alignment: center;
+            color: touch.pressed ? style.color.foreground : style.color.foreground-variant;
+            animate y { duration: style.short-animation; easing: ease; }
+            animate color { duration: style.standard-animation; easing: ease; }
+
+            states [
+                selected when selected == true : {
+                    color: style.color.primary.brighter(0.2);
+                }
+                pressed when touch.pressed : {
+                    y: (self.height - txt.height) / 2 - 1px;
+                }
+            ]
+        }
+    }
+    
+
+    touch := TouchArea { 
+        clicked => {
+            if (enabled) {
+                selected = !selected;
+            }
+        }
+    }
+}
+
+export component Recipe inherits Window {
+    VerticalLayout {
+        alignment: start;
+        padding: 10px;
+        spacing: 10px;
+        ToggleButton { text: "Toggle Button"; }
+        ToggleButton { text: "Toggle Button"; selected: true; }
+        ToggleButton { text: "Toggle Button"; icon-cmds: "M 0 0 L 0 100 A 1 1 0 0 0 100 100 L 100 0 Z"; }
+        ToggleButton { text: "Toggle Button"; icon-cmds: "M18.9 35.7 7.7 24.5l2.15-2.15 9.05 9.05 19.2-19.2 2.15 2.15Z"; }
+    }
+}

@@ -1,0 +1,54 @@
+import { style } from "../style.slint";
+import { Button } from "button.slint";
+import { Textbox } from "textbox.slint";
+import { Checkbox } from "checkbox.slint";
+import { Label } from "label.slint";
+import { Slider } from "slider.slint";
+import { Combobox } from "combobox.slint";
+import { ToggleButton } from "togglebutton.slint";
+
+export component Groupbox inherits Rectangle {
+    in-out property <bool> enabled: true;
+    
+    border-radius: style.secondary-rounding;
+    background: style.color.secondary-container.darker(0.5);
+
+    VerticalLayout {
+        alignment: start;
+        padding: style.primary-padding;
+        spacing: style.primary-spacing;
+        @children
+    }
+
+    state-layer := Rectangle {
+        background: parent.background;
+        opacity: 0;
+        animate opacity { duration: style.standard-animation; easing: ease; }
+    }
+
+    states [  
+        disabled when !enabled : {
+            // TODO: This needs to disable all widgets (@children) (slint issue #2338)
+            state-layer.opacity: 0.5;
+        }
+    ]
+}
+
+export component Recipe inherits Window  {
+    VerticalLayout {
+        alignment: start;
+        padding: 10px;
+        Groupbox { 
+            enabled: true;
+
+            Button { text: "Button"; }
+            Textbox { placeholder-text: "Initial text"; }
+            Textbox { placeholder-text: "Initial text (disabled)"; enabled: false; }
+            Checkbox { text: "Checkbox"; }
+            Checkbox { text: "Checkbox (disabled)"; enabled: false; }
+            Slider { text: "Slider"; }
+            Combobox { model: ["One", "Two", "Three"]; }
+            ToggleButton { text: "Toggle Button"; }
+        }
+    }
+}

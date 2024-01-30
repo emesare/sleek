@@ -1,0 +1,79 @@
+import { style } from "../style.slint";
+
+// TODO: Unfocus when mouse clicks outside of the textbox (or person hits enter / escape?)
+
+export component Textbox inherits Rectangle {
+    callback accepted(string);
+    callback edited(string);
+
+    in property<string> placeholder-text <=> placeholder.text;
+    in-out property<bool> enabled <=> input.enabled;
+
+    border-radius: style.primary-rounding;
+    height: placeholder.preferred-height * 1.8;
+    min-width: placeholder.preferred-width + 20px;
+    background: style.color.surface.darker(0.5);
+    forward-focus: input;
+
+    inner := Rectangle {
+        border-radius: parent.border-radius;
+        height: parent.height - 1px;
+        min-width: parent.min-width;
+        background: style.color.surface;
+        animate height { duration: style.standard-animation; easing: ease-out; }
+    }
+
+    HorizontalLayout { 
+        padding-left: style.primary-padding;
+        padding-right: style.primary-padding;
+
+        text-container := Rectangle { 
+            y: (parent.height - placeholder.height) / 2;
+            clip: true;
+            animate y { duration: style.standard-animation; easing: ease; }
+
+            placeholder := Text {
+                color: input.color;
+                opacity: 0;
+                x: input.x;
+                y: input.y;
+                animate opacity { duration: style.standard-animation; easing: ease; }
+            }
+
+            input := TextInput  {
+                color: style.color.foreground;
+                accepted => { root.accepted(self.text); }
+                edited => { root.edited(self.text); }
+            }
+
+            states [
+                empty when input.text == "" : {
+                    placeholder.opacity: 0.4;
+                }
+            ]
+        }
+    }
+
+    states [
+        // When user has clicked and focused the text input...
+        focused when input.has-focus : {
+            inner.height: self.height * 0.9;
+            text-container.y: (self.height - placeholder.height) / 2 - 1px;
+        }
+        // When the textbox becomes ineditable
+        disabled when !enabled : {
+            // TODO: Don't think this should be here.
+            placeholder.opacity: 0.9;
+        }
+    ]
+}
+
+export component Recipe inherits Window {
+    VerticalLayout {
+        alignment: start;
+        padding: 10px;
+        spacing: 5px;
+        Textbox { placeholder-text: "Initial text"; }
+        Textbox { placeholder-text: "Initial text (disabled)"; enabled: false; }
+    }
+}

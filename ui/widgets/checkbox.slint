@@ -1,0 +1,63 @@
+import { style } from "../style.slint";
+
+export component Checkbox inherits Rectangle {
+    in property<string> text <=> label.text;
+    in-out property<bool> checked: false;
+    in-out property<bool> enabled <=> touch.enabled;
+
+    height: label.preferred-height * 1.4;
+
+    HorizontalLayout {
+        spacing: style.primary-spacing;
+
+        box := Rectangle {
+            y: (parent.height - self.height) / 2;
+            background: style.color.surface;
+            border-radius: style.primary-rounding;
+            width: parent.height;
+
+            checkmark := Path {
+                opacity: checked ? 1 : 0;
+                width: 66%;
+                height: 66%;
+                x: (parent.width - self.width) / 2;
+                y: (parent.height - self.height) / 2;
+                commands: "M18.9 35.7 7.7 24.5l2.15-2.15 9.05 9.05 19.2-19.2 2.15 2.15Z";
+                fill: style.color.primary;
+                // Standard is a little annoying for this, use a short animation duration.
+                animate opacity { duration: style.short-animation; easing: ease-out; }
+            }
+        }
+    
+        label := Text {
+            vertical-alignment: center;
+            opacity: enabled ? 1 : 0.6;
+            color: style.color.foreground;
+        }
+    }
+
+    touch := TouchArea { 
+        clicked => {
+            if (enabled) {
+                checked = !checked;
+            }
+        }
+    }
+
+    states [
+        hovered-checked when touch.has-hover && checked : {
+            checkmark.fill: style.color.primary.brighter(0.2);
+        }
+        hovered-unchecked when touch.has-hover && !checked : {
+            checkmark.opacity: 0.5;
+        }
+    ]
+}
+
+export component Recipe inherits Window  {
+    VerticalLayout {
+        alignment: start;
+        padding: 10px;
+        Checkbox { text: "Button"; }
+    }
+}

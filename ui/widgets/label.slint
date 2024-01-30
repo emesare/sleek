@@ -1,0 +1,14 @@
+import { style } from "../style.slint";
+
+export component Label inherits Text {
+    color: style.color.foreground;
+    font-size: 14px;
+}
+
+export component Recipe inherits Window  {
+    VerticalLayout {
+        alignment: start;
+        padding: 10px;
+        Label { text: "Button"; }
+    }
+}

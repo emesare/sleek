@@ -1,0 +1,51 @@
+import { style } from "../style.slint";
+
+// TODO: Pull styling from toggle button?
+export component Button inherits Rectangle {
+    callback clicked <=> touch.clicked;
+
+    in property <string> text <=> txt.text;
+    in property <bool> enabled <=> touch.enabled;
+
+    border-radius: style.primary-rounding;
+    height: txt.preferred-height * 1.8;
+    min-width: txt.preferred-width + 20px;
+    // TODO: I think this needs more pop... see slider for example?
+    background: style.color.surface.darker(0.5);
+
+    // TODO: Pull inner for all components into its own component to manage state, i.e. inner, touch get merged along with anything else.
+    inner := Rectangle {
+        border-radius: parent.border-radius;
+        height: parent.height - 1px;
+        min-width: parent.min-width;
+        background: style.color.surface;
+        animate height { duration: style.standard-animation; easing: ease-out; }
+    }
+
+    txt := Text {
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        color: touch.pressed ? style.color.foreground : style.color.foreground-variant;
+        animate y { duration: style.standard-animation; easing: ease; }
+    }
+
+    touch := TouchArea { }
+
+    states [  
+        pressed when touch.pressed : {
+            inner.height: self.height * 0.9;
+            txt.y: (self.height - txt.height) / 2 - 1px;
+        }
+        hovered when touch.has-hover : {
+            inner.height: self.height * 0.95;
+        }
+    ]
+}
+
+export component Recipe inherits Window  {
+    VerticalLayout {
+        alignment: start;
+        padding: 10px;
+        Button { text: "Button"; }
+    }
+}

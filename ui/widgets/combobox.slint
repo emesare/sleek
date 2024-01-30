@@ -1,0 +1,76 @@
+import { style } from "../style.slint";
+import { Button } from "button.slint";
+import { ListItem } from "listitem.slint";
+
+export component Combobox inherits Button {
+    callback changed(string);
+
+    in property <[string]> model;
+    in-out property <int> current-index : 0;
+    in-out property <string> current-value: model[current-index];
+    out property <bool> has-focus <=> focus-scope.has-focus;
+
+    text: current-value;
+    forward-focus: focus-scope;
+
+    focus-scope := FocusScope {
+        key-pressed(event) => {
+            debug(event.text);
+            if (event.text == Key.UpArrow) {
+                root.current-index = Math.max(root.current-index - 1, 0);
+                root.current-value = root.model[root.current-index];
+                return accept;
+            } else if (event.text == Key.DownArrow) {
+                root.current-index = Math.min(root.current-index + 1, root.model.length - 1);
+                root.current-value = root.model[root.current-index];
+                return accept;
+            } else if (event.text == Key.Return) {
+                popup.close();
+            }
+            return reject;
+        }
+    }
+
+    popup := PopupWindow {
+        x: 0;
+        y: 0;
+        width: root.width;
+
+        popup-container := Rectangle {
+            background: root.background;
+            border-radius: root.border-radius;
+            clip: true;
+
+            VerticalLayout {
+                for value[idx] in root.model: ListItem  {
+                    text: value;
+                    background: idx == root.current-index ? style.color.primary.darker(0.5) : style.color.surface;
+                    opacity: idx == root.current-index ? 0.6 : 1;
+                    border-radius: idx == root.current-index ? root.border-radius : 0px;
+    
+                    clicked => {
+                        if (root.enabled) {
+                            root.current-index = idx;
+                            root.current-value = value;
+                            root.changed(root.current-value);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    clicked => {
+        if (root.enabled) {
+            popup.show();
+        }
+    }
+}
+
+export component Recipe inherits Window  {
+    VerticalLayout {
+        alignment: start;
+        padding: 10px;
+        Combobox { model: ["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh"]; }
+    }
+}

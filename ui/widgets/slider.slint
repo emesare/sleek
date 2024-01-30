@@ -1,0 +1,98 @@
+import { style } from "../style.slint";
+
+export component Slider inherits Rectangle {
+    callback changed(float);
+
+    in property<bool> enabled <=> touch.enabled;
+    in property<string> text <=> label.text;
+    in-out property<float> maximum: 100;
+    in-out property<float> minimum: 0;
+    in-out property<float> value;
+
+    border-radius: style.primary-rounding;
+    height: label.preferred-height * 1.8;
+    min-width: label.preferred-width + 20px;
+    background: style.color.surface;
+    clip: false;
+
+    track := Rectangle {
+        background: style.color.primary.darker(0.5);
+        opacity: 0.6;
+        x: 0;
+        y: (parent.height - self.height) / 2;
+        width: parent.width * (root.value - root.minimum) / (root.maximum - root.minimum);
+        height: parent.height;
+        border-radius: parent.border-radius;
+        animate opacity { duration: style.standard-animation; easing: ease; }
+
+        states [ 
+            holding when touch.enabled && touch.pressed : {
+                opacity: 1;
+            }
+        ]
+    }
+
+    anchoredTxt := Text {
+        color: style.color.foreground;
+        text: round(root.value);
+        x: track.width - (self.width * 1.4);
+        font-weight: 700;
+        animate opacity { duration: style.standard-animation; easing: ease-out; }
+
+        states [ 
+            oob when track.width < (self.width * 1.4) : {
+                opacity: 0;
+            }
+            // TODO: Doesnt work
+            colliding-label when self.x >= label.x : {
+                opacity: 0;
+            }
+        ]
+    }
+
+    label := Text {
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        color: touch.pressed ? style.color.foreground : style.color.foreground-variant;
+        animate y { duration: style.standard-animation; easing: ease; }
+    }
+
+    // TODO: Support clicking to a place on the track.
+    touch := TouchArea {
+        property <float> pressed-value;
+        pointer-event(event) => {
+            if (event.button == PointerEventButton.left && event.kind == PointerEventKind.down) {
+                self.pressed-value = parent.value;
+            }
+        }
+        moved => {
+            if (self.enabled && self.pressed) {
+                root.value = max(root.minimum, min(root.maximum,
+                    self.pressed-value + (touch.mouse-x - touch.pressed-x) * (root.maximum - root.minimum) / root.width));
+                root.changed(root.value);
+            }
+        }
+    }
+
+    fs := FocusScope {
+        key-pressed(event) => {
+            if (self.enabled && event.text == Key.RightArrow) {
+                root.value = min(root.value + 1, root.maximum);
+                accept
+            } else if (self.enabled && event.text == Key.LeftArrow) {
+                root.value = max(root.value - 1, root.minimum);
+                accept
+            } else {
+                reject
+            }
+        }
+    }
+}
+
+export component Recipe inherits Window  {
+    VerticalLayout {
+        alignment: start;
+        padding: 10px;
+        Slider { text: "Slider"; }
+    }
+}

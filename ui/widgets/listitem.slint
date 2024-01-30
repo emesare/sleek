@@ -1,0 +1,28 @@
+import { style } from "../style.slint";
+
+export component ListItem inherits Rectangle {
+    callback clicked <=> touch.clicked;
+
+    in property <string> text <=> txt.text;
+    in property <bool> enabled <=> touch.enabled;
+    in property <bool> selected;
+
+    height: txt.preferred-height * 2;
+    min-width: txt.preferred-width + 20px;
+
+    txt := Text {
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        color: style.color.foreground;
+    }
+
+    touch := TouchArea {}
+}
+
+export component Recipe inherits Window  {
+    VerticalLayout {
+        alignment: start;
+        padding: 10px;
+        ListItem { text: "List Item"; }
+    }
+}
